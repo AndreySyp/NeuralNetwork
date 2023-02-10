@@ -1,4 +1,4 @@
-import filework
+import data_worker
 import numpy
 from activfun import sigmoid_logistic
 
@@ -43,10 +43,10 @@ def w_recalculation(x: numpy.ndarray, w: numpy.ndarray, error: numpy.ndarray,
 
 
 def main():
-    filework.AMOUNT_Y = 2
-    array = filework.read("data\\single perceptrons\\denorm.csv")
-    array = filework.normalization(array)
-    x, y = filework.array_splitting(array)
+    data_worker.AMOUNT_Y = 2
+    array = data_worker.read("data\\single perceptrons\\denorm.csv")
+    array = data_worker.normalization(array)
+    x, y = data_worker.array_splitting(array)
 
     w = numpy.array([
         [0.000,    0.200],
@@ -79,7 +79,7 @@ def main():
         print(f"{glob}\n\n")
         union = numpy.hstack([x, y])
         numpy.random.shuffle(union)
-        x, y = filework.array_splitting(union)
+        x, y = data_worker.array_splitting(union)
 
 
 if __name__ == "__main__":

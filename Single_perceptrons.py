@@ -15,13 +15,10 @@ def neuron_state(x: numpy.ndarray, w: numpy.ndarray, offset: bool = False) -> nu
     ind_offset = 0
 
     if offset:
-        for i in range(len(s)):
-            s[i] += w[0][i]
+        s += w[0]
         ind_offset = 1
 
-    for i in range(len(s)):
-        for j in range(len(x)):
-            s[i] += w[j + ind_offset][i] * x[j]
+    s += numpy.dot(x, w[ind_offset:])
 
     return s
 
@@ -38,13 +35,11 @@ def w_recalculation(x: numpy.ndarray, w: numpy.ndarray, error: numpy.ndarray,
     """
     ind_offset = 0
     if offset_local:
-        for i in range(len(w[0])):
-            w[0][i] += v * error[i]
+        w[0] += v * error
         ind_offset = 1
 
     for i in range(ind_offset, len(w)):
-        for j in range(len(w[i])):
-            w[i][j] += v * error[j] * x[i - ind_offset]
+        w[i] += x[i - 1] * error * v
 
 
 def main():
@@ -64,27 +59,24 @@ def main():
     alpha = 1
     v = 0.9
 
-    glob = 0
-
-    for k in range(epoch):
-        print(k)
+    for e in range(epoch):
+        print(e)
         glob = 0
-        for i in range(len(x)):
-            neuron = neuron_state(x[i], w, offset)
+        for i, num in enumerate(x):
+            neuron = neuron_state(num, w, offset)
             y_calc = sigmoid_logistic(neuron, alpha)
             error = y[i] - y_calc
-            w_recalculation(x[i], w, error, v, offset)
+            w_recalculation(num, w, error, v, offset)
 
-            glob = glob + error[0]**2 + error[1]**2
+            glob += sum(k ** 2 for k in error)
+
             for m in w:
                 for j in m:
                     print(f"{round(j, 3)}\t\t\t", end='')
             print()
-            glob = glob / (len(y) * len(y[0]))
-            glob = glob ** 0.5
 
+        glob = numpy.sqrt(glob / (len(y) * len(y[0])))
         print(f"{glob}\n\n")
-        v -= 0.05
         union = numpy.hstack([x, y])
         numpy.random.shuffle(union)
         x, y = filework.array_splitting(union)

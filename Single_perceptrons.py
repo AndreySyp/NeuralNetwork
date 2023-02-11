@@ -3,41 +3,31 @@ import numpy
 from activfun import sigmoid_logistic
 
 
-def neuron_state(x: numpy.ndarray, w: numpy.ndarray, offset: bool = False) -> numpy.ndarray:
+def neuron_state(x: numpy.ndarray, w: numpy.ndarray) -> numpy.ndarray:
     """
     Состояние нейрона
     :param x: Вектор сигналов
     :param w: Весовые коэффициенты
-    :param offset: Есть ли коэффициенты смещения
     :return: массив состояний
     """
     s = numpy.zeros(data_worker.AMOUNT_Y)
-    ind_offset = 0
-    if offset:
-        s += w[0]
-        ind_offset = 1
-
-    s += numpy.dot(x, w[ind_offset:])
+    s += w[0]
+    s += numpy.dot(x, w[1:])
 
     return s
 
 
 def w_recalculation(x: numpy.ndarray, w: numpy.ndarray, error: numpy.ndarray,
-                    v: float = 9, offset_local: bool = False):
+                    v: float = 9):
     """
     Коррекция старых значений весовых коэффициентов каждого нейрона
     :param x: Вектор сигналов
     :param w: Весовые коэффициенты
     :param error: Погрешности выходных значений
     :param v: Коэффициент скорости обучения
-    :param offset_local: Есть ли коэффициенты смещения
     """
-    ind_offset = 0
-    if offset_local:
-        w[0] += v * error
-        ind_offset = 1
-
-    for i in range(ind_offset, len(w)):
+    w[0] += v * error
+    for i in range(1, len(w)):
         w[i] += x[i - 1] * error * v
 
 
@@ -46,7 +36,6 @@ def main(data: numpy.ndarray, w:  numpy.ndarray, amount_y: int = 1):
     data_worker.AMOUNT_Y = amount_y
     x, y = data_worker.array_splitting(data)
 
-    offset = True
     epoch = 10
     alpha = 1
     v = 0.9
@@ -57,11 +46,11 @@ def main(data: numpy.ndarray, w:  numpy.ndarray, amount_y: int = 1):
         y_list = []
 
         for i, num in enumerate(x):
-            neuron = neuron_state(num, w, offset)
+            neuron = neuron_state(num, w)
             y_calc = sigmoid_logistic(neuron, alpha)
             print(y_calc)
             error = y[i] - y_calc
-            w_recalculation(num, w, error, v, offset)
+            w_recalculation(num, w, error, v)
 
             glob += sum(k ** 2 for k in error)
             y_list.append(numpy.hstack([y[i], y_calc]))

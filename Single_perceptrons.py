@@ -31,10 +31,11 @@ def w_recalculation(x: numpy.ndarray, w: numpy.ndarray, error: numpy.ndarray,
         w[i] += x[i - 1] * error * v
 
 
-def main(data: numpy.ndarray, w:  numpy.ndarray, amount_y: int = 1):
+def main(data: numpy.ndarray, amount_y: int = 1):
 
     data_worker.AMOUNT_Y = amount_y
     x, y = data_worker.array_splitting(data)
+    w = numpy.random.uniform(low=-0.2, high=0.2, size=(len(x[0]) + 1, len(y[0])))
 
     epoch = 10
     alpha = 1
@@ -48,7 +49,6 @@ def main(data: numpy.ndarray, w:  numpy.ndarray, amount_y: int = 1):
         for i, num in enumerate(x):
             neuron = neuron_state(num, w)
             y_calc = sigmoid_logistic(neuron, alpha)
-            print(y_calc)
             error = y[i] - y_calc
             w_recalculation(num, w, error, v)
 
@@ -72,11 +72,4 @@ def main(data: numpy.ndarray, w:  numpy.ndarray, amount_y: int = 1):
 if __name__ == "__main__":
     array = data_worker.read("data\\single perceptrons\\my_data.csv")
     array = data_worker.normalization(array)
-
-    we = numpy.array([
-        [0.000,    0.200],
-        [-0.400,  -0.100],
-        [0.300,    0.200]
-    ])
-
-    main(array, we, 2)
+    main(array, 1)

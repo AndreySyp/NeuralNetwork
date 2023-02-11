@@ -65,7 +65,8 @@ def denormalization(array: numpy.ndarray, is_y: bool = False) -> numpy.ndarray:
 
 
 def array_splitting(array: numpy.ndarray):
+    size = len(array[0]) - AMOUNT_Y
     array = numpy.array_split(array, len(array), 1)
-    x = numpy.hstack(array[:AMOUNT_Y])
-    y = numpy.hstack(array[AMOUNT_Y:])
+    x = numpy.hstack(array[:size])
+    y = numpy.hstack(array[size:])
     return [x, y]

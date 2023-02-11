@@ -11,9 +11,8 @@ def neuron_state(x: numpy.ndarray, w: numpy.ndarray, offset: bool = False) -> nu
     :param offset: Есть ли коэффициенты смещения
     :return: массив состояний
     """
-    s = numpy.zeros(2)
+    s = numpy.zeros(data_worker.AMOUNT_Y)
     ind_offset = 0
-
     if offset:
         s += w[0]
         ind_offset = 1
@@ -42,17 +41,10 @@ def w_recalculation(x: numpy.ndarray, w: numpy.ndarray, error: numpy.ndarray,
         w[i] += x[i - 1] * error * v
 
 
-def main():
-    data_worker.AMOUNT_Y = 2
-    array = data_worker.read("data\\single perceptrons\\denorm.csv")
-    array = data_worker.normalization(array)
-    x, y = data_worker.array_splitting(array)
+def main(data: numpy.ndarray, w:  numpy.ndarray, amount_y: int = 1):
 
-    w = numpy.array([
-        [0.000,    0.200],
-        [-0.400,  -0.100],
-        [0.300,    0.200]
-    ])
+    data_worker.AMOUNT_Y = amount_y
+    x, y = data_worker.array_splitting(data)
 
     offset = True
     epoch = 10
@@ -62,13 +54,17 @@ def main():
     for e in range(epoch):
         print(e)
         glob = 0
+        y_list = []
+
         for i, num in enumerate(x):
             neuron = neuron_state(num, w, offset)
             y_calc = sigmoid_logistic(neuron, alpha)
+            print(y_calc)
             error = y[i] - y_calc
             w_recalculation(num, w, error, v, offset)
 
             glob += sum(k ** 2 for k in error)
+            y_list.append(numpy.hstack([y[i], y_calc]))
 
             for m in w:
                 for j in m:
@@ -81,6 +77,17 @@ def main():
         numpy.random.shuffle(union)
         x, y = data_worker.array_splitting(union)
 
+    print(numpy.array(y_list))
+
 
 if __name__ == "__main__":
-    main()
+    array = data_worker.read("data\\single perceptrons\\my_data.csv")
+    array = data_worker.normalization(array)
+
+    we = numpy.array([
+        [0.000,    0.200],
+        [-0.400,  -0.100],
+        [0.300,    0.200]
+    ])
+
+    main(array, we, 2)

@@ -2,15 +2,7 @@ import numpy
 
 
 mm = []
-AMOUNT_Y = 1
-
-
-def function_normalization(x, min, max):
-    return (x - min) / (max - min)
-
-
-def function_denormalization(x, min, max):
-    return min + x * (max - min)
+AMOUNT_Y = 0
 
 
 def read(path: str, delimiter: str = ';') -> numpy.ndarray:
@@ -24,6 +16,14 @@ def read(path: str, delimiter: str = ';') -> numpy.ndarray:
         return numpy.loadtxt(file_name, delimiter=delimiter, dtype=float)
 
 
+def function_normalization(x, min_num, max_num):
+    return (x - min_num) / (max_num - min_num)
+
+
+def function_denormalization(x, min_num, max_num):
+    return min_num + x * (max_num - min_num)
+
+
 def normalization(array: numpy.ndarray) -> numpy.ndarray:
     """
     Линейно нормализует значения по каждому столбцу
@@ -35,11 +35,11 @@ def normalization(array: numpy.ndarray) -> numpy.ndarray:
     for i in range(len(array[0])):
         x = array[:, i]
 
-        max = numpy.max(x)
-        min = numpy.min(x)
-        mm.append([min, max])
+        max_num = numpy.max(x)
+        min_num = numpy.min(x)
+        mm.append([min_num, max_num])
 
-        result.append(function_normalization(x, min, max))
+        result.append(function_normalization(x, min_num, max_num))
 
     return numpy.transpose(numpy.array(result))
 
@@ -64,7 +64,7 @@ def denormalization(array: numpy.ndarray, is_y: bool = False) -> numpy.ndarray:
     return numpy.transpose(numpy.array(result))
 
 
-def array_splitting(array: numpy.ndarray):
+def array_splitting(array: numpy.ndarray) -> list[numpy.ndarray]:
     size = len(array[0]) - AMOUNT_Y
     array = numpy.array_split(array, len(array), 1)
     x = numpy.hstack(array[:size])

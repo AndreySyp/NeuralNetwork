@@ -70,3 +70,9 @@ def array_splitting(array: numpy.ndarray) -> list[numpy.ndarray]:
     x = numpy.hstack(array[:size])
     y = numpy.hstack(array[size:])
     return [x, y]
+
+
+def array_reshuffle(array_1: numpy.ndarray, array_2: numpy.ndarray) -> list[numpy.ndarray]:
+    union = numpy.hstack([array_1, array_2])
+    numpy.random.shuffle(union)
+    return array_splitting(union)

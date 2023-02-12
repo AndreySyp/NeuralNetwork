@@ -31,45 +31,61 @@ def w_recalculation(x: numpy.ndarray, w: numpy.ndarray, error: numpy.ndarray,
         w[i] += x[i - 1] * error * v
 
 
-def main(data: numpy.ndarray, amount_y: int = 1):
+def calculation_start(data: numpy.ndarray, epoch: int = 10, v: float = 0.9, y: int = 1, alpha: float = 1):
+    """
+    Начинает расчет однослойной нейронной сети
+    :param data: Совмещенный массив данных по x, y
+    :param epoch: Количество эпох
+    :param v: Коэффициент скорости обучения
+    :param y: Количество выходных значений (y)
+    :param alpha: Параметр насыщения
+    """
+    data_worker.AMOUNT_Y = y  # Количество столбцов
+    x, y = data_worker.array_splitting(data)  # Разделяем массив
+    w = numpy.random.uniform(low=-0.2, high=0.2, size=(len(x[0]) + 1, len(y[0])))  # Массив весов
 
-    data_worker.AMOUNT_Y = amount_y
-    x, y = data_worker.array_splitting(data)
-    w = numpy.random.uniform(low=-0.2, high=0.2, size=(len(x[0]) + 1, len(y[0])))
-
-    epoch = 10
-    alpha = 1
-    v = 0.9
+    # Хранение данных для вывода
+    global_error = 0
+    y_history = []
+    w_history = []
 
     for e in range(epoch):
-        print(e)
-        glob = 0
-        y_list = []
+        print(f"Epoch = {e}")  # Номер эпохи
 
-        for i, num in enumerate(x):
+        # Обнуление
+        global_error = 0
+        y_history = []
+        w_history = []
+
+        for ind, num in enumerate(x):
+            # Операции по алгоритму
             neuron = neuron_state(num, w)
             y_calc = sigmoid_logistic(neuron, alpha)
-            error = y[i] - y_calc
+            error = y[ind] - y_calc
             w_recalculation(num, w, error, v)
 
-            glob += sum(k ** 2 for k in error)
-            y_list.append(numpy.hstack([y[i], y_calc]))
+            # Информация для вывода в консоль
+            global_error += sum(k ** 2 for k in error)
+            y_history.append(numpy.hstack([y[ind], y_calc]))
+            w_history.append([])
+            for i in w:
+                w_history[ind] = numpy.hstack([w_history[ind], i])
 
-            for m in w:
-                for j in m:
-                    print(f"{round(j, 3)}\t\t\t", end='')
-            print()
-
-        glob = numpy.sqrt(glob / (len(y) * len(y[0])))
-        print(f"{glob}\n\n")
+        # Перемешиваем значения
         union = numpy.hstack([x, y])
         numpy.random.shuffle(union)
         x, y = data_worker.array_splitting(union)
 
-    print(numpy.array(y_list))
+        # Информация для вывода в консоль
+        global_error = numpy.sqrt(global_error / (len(y) * len(y[0])))
+        print(f"Global error = {global_error}")
+        print(f"Weight:\n{numpy.array(w_history)}")
+        print("\n\n")
+
+    print(f"Y on the last epoch:\n {numpy.array(y_history)}")
 
 
 if __name__ == "__main__":
-    array = data_worker.read("data\\single perceptrons\\my_data.csv")
+    array = data_worker.read("data\\single perceptrons\\met_norm.csv")
     array = data_worker.normalization(array)
-    main(array, 1)
+    calculation_start(array, y=2, epoch=10)

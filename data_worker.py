@@ -65,6 +65,11 @@ def denormalization(array: numpy.ndarray, is_y: bool = False) -> numpy.ndarray:
 
 
 def array_splitting(array: numpy.ndarray) -> list[numpy.ndarray]:
+    """
+    Разбивает один массив на два
+    :param array: Исходных массив
+    :return: Разбитый массив
+    """
     size = len(array[0]) - AMOUNT_Y
     array = numpy.array_split(array, len(array), 1)
     x = numpy.hstack(array[:size])
@@ -73,6 +78,12 @@ def array_splitting(array: numpy.ndarray) -> list[numpy.ndarray]:
 
 
 def array_reshuffle(array_1: numpy.ndarray, array_2: numpy.ndarray) -> list[numpy.ndarray]:
+    """
+    Принимает два массива и перемешивает строки
+    :param array_1: Массив 1
+    :param array_2: Массив 2
+    :return: Перемешанный массив
+    """
     union = numpy.hstack([array_1, array_2])
     numpy.random.shuffle(union)
     return array_splitting(union)

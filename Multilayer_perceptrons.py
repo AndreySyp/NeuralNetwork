@@ -1,23 +1,7 @@
-import activfun
+from activfun import sigmoid_logistic, diff_sigmoid_logistic
+from generic_methods import neuron_state, w_recalculation
 import data_worker
 import numpy
-
-from Singlelayer_perceptrons import w_recalculation
-from activfun import sigmoid_logistic
-
-
-def neuron_state(x: numpy.ndarray, w: numpy.ndarray) -> numpy.ndarray:
-    """
-    Состояние нейрона
-    :param x: Вектор сигналов
-    :param w: Весовые коэффициенты
-    :return: массив состояний
-    """
-    s = numpy.zeros(data_worker.AMOUNT_Y)
-    s += w[0]
-    s += numpy.dot(x, w[1:])
-
-    return s
 
 
 def calculation_start(data: numpy.ndarray, epoch: int = 10, v: float = 0.9, y: int = 1, alpha: float = 1):
@@ -29,6 +13,7 @@ def calculation_start(data: numpy.ndarray, epoch: int = 10, v: float = 0.9, y: i
     :param y: Количество выходных значений (y)
     :param alpha: Параметр насыщения
     """
+
     data_worker.AMOUNT_Y = y  # Количество столбцов
     x, y = data_worker.array_splitting(data)  # Разделяем массив
     # w = numpy.random.uniform(low=-0.2, high=0.2, size=(len(x[0]) + 1, len(y[0])))  # Массив весов
@@ -53,7 +38,7 @@ def calculation_start(data: numpy.ndarray, epoch: int = 10, v: float = 0.9, y: i
     global_error = 0
     y_history = []
     w_history = []
-    alpha = 2
+
     for e in range(epoch):
         print(f"Epoch = {e}")  # Номер эпохи
 
@@ -71,20 +56,31 @@ def calculation_start(data: numpy.ndarray, epoch: int = 10, v: float = 0.9, y: i
 
             error = y[ind] - y_calc_2
 
-            diff_y_calc_1 = activfun.diff_sigmoid_logistic(neuron_1)
-            diff_y_calc_2 = activfun.diff_sigmoid_logistic(neuron_2)
+            diff_y_calc_1 = diff_sigmoid_logistic(neuron_1, alpha)
+            diff_y_calc_2 = diff_sigmoid_logistic(neuron_2, alpha)
 
             d_2 = error * diff_y_calc_2
-            d_1 = numpy.dot(w_2[1:, ], numpy.array([d_2]).transpose()).transpose()[0] * diff_y_calc_1
 
-            w_recalculation(diff_y_calc_2, w_2, d_2, v)
-            w_recalculation(x[ind], w_1, d_1, v)
+            d_1 = numpy.dot(w_2[1:, ], d_2) * diff_y_calc_1
 
-            print(ind)
-            print(y_calc_2)
+            w_recalculation(diff_y_calc_1, w_2, d_2, v)
+            w_recalculation(num, w_1, d_1, v)
+
+            print(ind + 1)
+            print(numpy.around(w_1, 3))
+            print(numpy.around(w_2, 3))
+            global_error += sum(k ** 2 for k in error)
+            y_history.append(numpy.hstack([y[ind], y_calc_2]))
+
+        x, y = data_worker.array_reshuffle(x, y)
+
+        global_error = numpy.sqrt(global_error / (len(y) * len(y[0])))
+        print(f"Global error = {global_error}\n\n")
+    print(f"Y on the last epoch:\n {numpy.around(numpy.array(y_history))}")
 
 
 if __name__ == "__main__":
+    # print(numpy.array([2, 4])*numpy.array([2,3]))
     array = data_worker.read("data\\multilayer perceptrons\\met_norm.csv")
     array = data_worker.normalization(array)
-    calculation_start(array, y=2, epoch=100, v=0.5)
+    calculation_start(array, y=2, epoch=100, v=0.5, alpha=2)

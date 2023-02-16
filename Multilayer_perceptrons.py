@@ -81,6 +81,6 @@ def calculation_start(data: numpy.ndarray, epoch: int = 10, v: float = 0.9, y: i
 
 if __name__ == "__main__":
     # print(numpy.array([2, 4])*numpy.array([2,3]))
-    array = data_worker.read("data\\multilayer perceptrons\\met_norm.csv")
+    array = data_worker.read("data\\met_denorm_multi.csv")
     array = data_worker.normalization(array)
     calculation_start(array, y=2, epoch=100, v=0.5, alpha=2)

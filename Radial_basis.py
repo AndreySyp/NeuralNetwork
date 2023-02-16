@@ -27,6 +27,6 @@ def calculation_start(data: numpy.ndarray, epoch: int = 10, v: float = 0.9, y: i
 
 
 if __name__ == "__main__":
-    array = data_worker.read("data\\radial basis\\met_norm.csv")
+    array = data_worker.read("data\\met_denorm_radial.csv")
     # array = data_worker.normalization(array)
     calculation_start(array, y=1, epoch=10)

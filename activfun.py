@@ -33,7 +33,7 @@ def gaussian(x: numpy.ndarray, alpha: float = 1.0, t: float = 1) -> numpy.ndarra
     :param t: Вертикальная ось симметрии
     :return: Массив значений в точка
     """
-    return numpy.array([1 / (numpy.exp(-alpha * (i - t)**2) + 1) for i in x])
+    return numpy.array([(numpy.exp(-alpha * abs(i - t))) for i in x])
 
 
 def diff_gaussian(x: numpy.ndarray, alpha: float = 1.0, t: float = 1) -> numpy.ndarray:

@@ -1,7 +1,6 @@
 import numpy
 
 
-mm = []
 AMOUNT_Y = 0
 
 
@@ -24,44 +23,37 @@ def function_denormalization(x, min_num, max_num):
     return min_num + x * (max_num - min_num)
 
 
-def normalization(array: numpy.ndarray) -> numpy.ndarray:
+def normalization(array: numpy.ndarray):
     """
     Линейно нормализует значения по каждому столбцу
     :param array: Массив, который требуется нормализовать
-    :return: Нормализованный массив
+    :return: Нормализованный массив и массив с max и min значениями
     """
     result = []
-
+    min_max = []
+    
     for i in range(len(array[0])):
         x = array[:, i]
-
         max_num = numpy.max(x)
         min_num = numpy.min(x)
-        mm.append([min_num, max_num])
-
+        min_max.append([min_num, max_num])
         result.append(function_normalization(x, min_num, max_num))
 
-    return numpy.transpose(numpy.array(result))
+    return [numpy.transpose(numpy.array(result)), numpy.transpose(numpy.array(min_max))]
 
 
-def denormalization(array: numpy.ndarray, is_y: bool = False) -> numpy.ndarray:
+def denormalization(array: numpy.ndarray, min_max: numpy.ndarray) -> numpy.ndarray:
     """
     Линейно денормализует значения массива
     :param array: Массив, который требуется денормализовать
-    :param is_y: Считать ли только для y
+    :param min_max: Массив с max и min значениями
     :return: Денормализованный массив
     """
     result = []
-    offset = 0
-    if is_y:
-        offset = len(array[0]) - AMOUNT_Y
+    for ind, num in enumerate(array):
+        result.append(function_denormalization(num, min_max[0], min_max[1]))
 
-    for i in range(offset, len(array[0])):
-        x = array[:, i]
-
-        result.append(function_denormalization(x, mm[i][0], mm[i][1]))
-
-    return numpy.transpose(numpy.array(result))
+    return numpy.array(result)
 
 
 def array_splitting(array: numpy.ndarray) -> list[numpy.ndarray]:

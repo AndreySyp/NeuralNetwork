@@ -51,5 +51,13 @@ def calculation_start(data: numpy.ndarray, epoch: int = 10, v: float = 0.9, y: i
 
 if __name__ == "__main__":
     array = data_worker.read("data\\met_denorm_single.csv")
-    array = data_worker.normalization(array)
-    calculation_start(array, y=2, epoch=10)
+    array, mm = data_worker.normalization(array)
+
+    wm, h = calculation_start(array, y=2, epoch=100)
+    data_worker.print_history(h)
+
+    n = neuron_state(numpy.array([0, 0.7]), wm)
+    yc = sigmoid_logistic(n, 1)
+    yp = data_worker.denormalization(numpy.array([yc]), mm[:, 2:])
+    print(f"В нормализованном виде = {yc}\nВ денормализованном виде{yp}")
+

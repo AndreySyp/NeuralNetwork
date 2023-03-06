@@ -34,14 +34,9 @@ def calculation_start(data: numpy.ndarray, epoch: int = 10, v: float = 0.9, y: i
         [ 0.04,  0.01],  # x2
     ])    # y1    y2
 
-    # Хранение данных для вывода
-    global_error = 0
-    y_history = []
-    w_history = []
+    history = []  # Хранение данных для вывода
 
     for e in range(epoch):
-        print(f"Epoch = {e}")  # Номер эпохи
-
         # Обнуление
         global_error = 0
         y_history = []
@@ -74,9 +69,11 @@ def calculation_start(data: numpy.ndarray, epoch: int = 10, v: float = 0.9, y: i
 
         x, y = data_worker.array_reshuffle(x, y)
 
-        global_error = numpy.sqrt(global_error / (len(y) * len(y[0])))
-        print(f"Global error = {global_error}\n\n")
-    print(f"Y on the last epoch:\n {numpy.around(numpy.array(y_history))}")
+        history.append({"Global error": numpy.sqrt(global_error / (len(y) * len(y[0]))),
+                        "Weight": numpy.array(w_history),
+                        "Compare": numpy.around(numpy.array(y_history))})
+
+    return [w, history]
 
 
 if __name__ == "__main__":

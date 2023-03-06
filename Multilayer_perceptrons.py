@@ -4,7 +4,8 @@ import data_worker
 import numpy
 
 
-def calculation_start(data: numpy.ndarray, epoch: int = 10, v: float = 0.9, y: int = 1, alpha: float = 1):
+def calculation_start(data: numpy.ndarray, epoch: int = 10, v: float = 0.9, y: int = 1, alpha: float = 1,
+                      layers: int = 2):
     """
     Начинает расчет многослойной нейронной сети
     :param data: Совмещенный массив данных по x, y
@@ -12,27 +13,28 @@ def calculation_start(data: numpy.ndarray, epoch: int = 10, v: float = 0.9, y: i
     :param v: Коэффициент скорости обучения
     :param y: Количество выходных значений (y)
     :param alpha: Параметр насыщения
+    :param layers: Количество слоев
     """
-
     data_worker.AMOUNT_Y = y  # Количество столбцов
     x, y = data_worker.array_splitting(data)  # Разделяем массив
     # w = numpy.random.uniform(low=-0.2, high=0.2, size=(len(x[0]) + 1, len(y[0])))  # Массив весов
 
-    # первый слой
-    w_1 = numpy.array([
-        [ 0.03,  0.02],  # x0
-        [-0.08, -0.05],  # x1
-        [-0.06, -0.01],  # x2
-        [ 0.02,  0.05],  # x3
-        [ 0.02, -0.04],  # x4
-        [-0.08, -0.01],  # x5
-        [-0.07,  0.01],  # x6
-    ])    # y1    y2
-    w_2 = numpy.array([
-        [ 0.04,  0.07],  # x0
-        [ 0.01,  0.02],  # x1
-        [ 0.04,  0.01],  # x2
-    ])    # y1    y2
+    w = [
+        numpy.array([
+            [ 0.03,  0.02],  # x0
+            [-0.08, -0.05],  # x1
+            [-0.06, -0.01],  # x2
+            [ 0.02,  0.05],  # x3
+            [ 0.02, -0.04],  # x4
+            [-0.08, -0.01],  # x5
+            [-0.07,  0.01],  # x6
+        ]),
+        numpy.array([
+            [0.04, 0.07],  # x0
+            [0.01, 0.02],  # x1
+            [0.04, 0.01],  # x2
+        ])
+    ]
 
     history = []  # Хранение данных для вывода
 
@@ -43,29 +45,37 @@ def calculation_start(data: numpy.ndarray, epoch: int = 10, v: float = 0.9, y: i
         w_history = []
 
         for ind, num in enumerate(x):
-            neuron_1 = neuron_state(num, w_1)
-            y_calc_1 = sigmoid_logistic(neuron_1, alpha)
+            neuron = []
+            y_calc = []
+            diff_y_calc = []
+            d = []
 
-            neuron_2 = neuron_state(y_calc_1, w_2)
-            y_calc_2 = sigmoid_logistic(neuron_2, alpha)
+            for i in range(layers):
+                t = num if i == 0 else y_calc[i - 1]
+                neuron.append(neuron_state(t, w[i]))
+                y_calc.append(sigmoid_logistic(neuron[i], alpha))
 
-            error = y[ind] - y_calc_2
+            error = y[ind] - y_calc[1]
 
-            diff_y_calc_1 = diff_sigmoid_logistic(neuron_1, alpha)
-            diff_y_calc_2 = diff_sigmoid_logistic(neuron_2, alpha)
+            for i in range(layers):
+                diff_y_calc.append(diff_sigmoid_logistic(neuron[i], alpha))
 
-            d_2 = error * diff_y_calc_2
+            for i in range(layers - 1, 0 - 1, -1):
+                t = error if i == layers - 1 else numpy.dot(w[i + 1][1:, ], d[-i])  # ???
+                d.insert(0, t * diff_y_calc[i])
 
-            d_1 = numpy.dot(w_2[1:, ], d_2) * diff_y_calc_1
+            for i in range(layers):
+                t = num if i == 0 else diff_y_calc[i - 1]
+                w_recalculation(t, w[i], d[i], v)
 
-            w_recalculation(diff_y_calc_1, w_2, d_2, v)
-            w_recalculation(num, w_1, d_1, v)
-
-            print(ind + 1)
-            print(numpy.around(w_1, 3))
-            print(numpy.around(w_2, 3))
+            # Информация для вывода в консоль
             global_error += sum(k ** 2 for k in error)
-            y_history.append(numpy.hstack([y[ind], y_calc_2]))
+            y_history.append(numpy.hstack([y[ind], y_calc[1]]))
+            w_history.append([])
+            for i in w[0]:
+                w_history[ind] = numpy.hstack([w_history[ind], i])
+            for i in w[1]:
+                w_history[ind] = numpy.hstack([w_history[ind], i])
 
         x, y = data_worker.array_reshuffle(x, y)
 

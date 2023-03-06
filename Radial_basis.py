@@ -1,44 +1,47 @@
-import activfun
 import data_worker
 import numpy
 
 
-def calculation_start(data: numpy.ndarray, epoch: int = 10, v: float = 0.9, y: int = 1, alpha: float = 1):
+def calculation_start(data: numpy.ndarray, r: float = 1, c=None, y: int = 1):
     """
     Начинает расчет однослойной нейронной сети
     :param data: Совмещенный массив данных по x, y
-    :param epoch: Количество эпох
-    :param v: Коэффициент скорости обучения
+    :param r: Радиус
+    :param c: Центры
     :param y: Количество выходных значений (y)
-    :param alpha: Параметр насыщения
     """
-    # x = [0, 0.2, 0.4, 0.6, 0.8, 1]
-    # y = [1.00, 0.83, 0.71, 0.63, 0.56, 0.50]
-    # d = [0, 0.5, 1]
+    data_worker.AMOUNT_Y = y  # Количество столбцов
+    x, y = data_worker.array_splitting(data)  # Разделяем массив
+    x = x.T[0]
+    y = y.T[0]
 
-    x = [-0.5,	-0.4,	-0.3,	-0.2,	-0.1,	0,	0.1,	0.2,	0.3,	0.4,	0.5]
-    y = [0.111,	0.130,	0.149,	0.167,	0.184,	0.200,	0.216,	0.231,	0.245,	0.259,	0.273]
-    d = [-0.5, -0.3, -0.1, 0.1, 0.3, 0.5]
+    if c is None:
+        c = [x[0], x[-1]]
 
-    r = 0.22
     alpha = 1 / (2 * r ** 2)
-
+    history = []
     h = []
     for ind_1, num_1 in enumerate(x):
         h.append([])
-        for ind_2, num_2 in enumerate(d):
+        for ind_2, num_2 in enumerate(c):
             h[ind_1].append(numpy.exp(-alpha * (num_1 - num_2) ** 2))
+
     h = numpy.array(h)
-    print(numpy.around(h, 3))
     h_t = numpy.transpose(h)
     w = numpy.dot(numpy.dot(numpy.linalg.inv(numpy.dot(h_t, h)), h_t), numpy.transpose(y))
-    print(numpy.around(w, 3))
 
-    test = 0.35
-    print(sum(([numpy.exp(-alpha * (test - num) ** 2) for ind, num in enumerate(d)] * w)))
+    history.append({"H": h, "W": w})
+    return [w, history]
 
 
 if __name__ == "__main__":
-    array = data_worker.read("data\\met_denorm_radial.csv")
-    array = data_worker.normalization(array)
-    calculation_start(array, y=1, epoch=10)
+    array = data_worker.read("data\\my_data_radial.csv")
+
+    cc = [array[i][0] for i in range(0, len(array), 2)]
+    ww, hh = calculation_start(array, y=1, r=0.22, c=cc)
+    data_worker.print_history(hh)
+
+    test = 0.35
+    rr = 0.22
+    a = 1 / (2 * rr ** 2)
+    print(sum(([numpy.exp(-a * (test - num) ** 2) for ind, num in enumerate(cc)] * ww)))

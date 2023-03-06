@@ -31,7 +31,7 @@ def normalization(array: numpy.ndarray):
     """
     result = []
     min_max = []
-    
+
     for i in range(len(array[0])):
         x = array[:, i]
         max_num = numpy.max(x)
@@ -79,3 +79,14 @@ def array_reshuffle(array_1: numpy.ndarray, array_2: numpy.ndarray) -> list[nump
     union = numpy.hstack([array_1, array_2])
     numpy.random.shuffle(union)
     return array_splitting(union)
+
+
+def print_history(h):
+    for ind, num in enumerate(h):
+        print(f"Эпоха: {ind}")
+        for key, value in num.items():
+            if key == "Weight":
+                print(f"{key}:\n {value[-1]}")
+                continue
+            print(f"{key}:\n {value}")
+        print("\n")

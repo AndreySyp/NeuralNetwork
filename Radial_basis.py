@@ -2,13 +2,14 @@ import data_worker
 import numpy
 
 
-def calculation_start(data: numpy.ndarray, r: float = 1, c=None, y: int = 1):
+def education_start(data: numpy.ndarray, r: float = 1, c=None, y: int = 1):
     """
-    Начинает расчет однослойной нейронной сети
+    Начинает расчет радиально базисной нейронной сети
     :param data: Совмещенный массив данных по x, y
     :param r: Радиус
     :param c: Центры
     :param y: Количество выходных значений (y)
+    :return: Массив весовых коэффициентов и историю
     """
     data_worker.AMOUNT_Y = y  # Количество столбцов
     x, y = data_worker.array_splitting(data)  # Разделяем массив
@@ -34,14 +35,25 @@ def calculation_start(data: numpy.ndarray, r: float = 1, c=None, y: int = 1):
     return [w, history]
 
 
+def applying(w: numpy.ndarray, data, r: float = 1):
+    """
+    Для практического использования
+    :param w: Обученный массив весовых коэффициентов
+    :param data: Вектор данных
+    :param r: Радиус
+    :return: Рассчитанное значение
+    """
+    alpha = 1 / (2 * r ** 2)
+    return sum(([numpy.exp(-alpha * (data - num) ** 2) for ind, num in enumerate(cc)] * w))
+
+
 if __name__ == "__main__":
     array = data_worker.read("data\\my_data_radial.csv")
+    rr = 0.22
 
     cc = [array[i][0] for i in range(0, len(array), 2)]
-    ww, hh = calculation_start(array, y=1, r=0.22, c=cc)
+    ww, hh = education_start(array, y=1, r=rr, c=cc)
     data_worker.print_history(hh)
 
-    test = 0.35
-    rr = 0.22
-    a = 1 / (2 * rr ** 2)
-    print(sum(([numpy.exp(-a * (test - num) ** 2) for ind, num in enumerate(cc)] * ww)))
+    yc = applying(ww, 0.35, rr)
+    print(yc)

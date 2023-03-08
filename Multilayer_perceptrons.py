@@ -4,16 +4,19 @@ import data_worker
 import numpy
 
 
-def calculation_start(data: numpy.ndarray, epoch: int = 10, v: float = 0.9, y: int = 1, alpha: float = 1,
-                      layers: int = 2):
+def education_start(data: numpy.ndarray, epoch: int = 10, v: float = 0.9, y: int = 1, alpha: float = 1,
+                    layers: int = 2, dv: float = 0., w=None):
     """
     Начинает расчет многослойной нейронной сети
     :param data: Совмещенный массив данных по x, y
     :param epoch: Количество эпох
     :param v: Коэффициент скорости обучения
+    :param dv: Изменение коэффициент скорости обучения
     :param y: Количество выходных значений (y)
     :param alpha: Параметр насыщения
+    :param w: Весовые коэффициенты
     :param layers: Количество слоев
+    :return: Массив весовых коэффициентов и историю
     """
     data_worker.AMOUNT_Y = y  # Количество столбцов
     x, y = data_worker.array_splitting(data)  # Разделяем массив
@@ -78,6 +81,7 @@ def calculation_start(data: numpy.ndarray, epoch: int = 10, v: float = 0.9, y: i
                 w_history[ind] = numpy.hstack([w_history[ind], i])
 
         x, y = data_worker.array_reshuffle(x, y)
+        v -= dv
 
         history.append({"Global error": numpy.sqrt(global_error / (len(y) * len(y[0]))),
                         "Weight": numpy.array(w_history),
@@ -86,19 +90,31 @@ def calculation_start(data: numpy.ndarray, epoch: int = 10, v: float = 0.9, y: i
     return [w, history]
 
 
+def applying(w: numpy.ndarray, data: numpy.ndarray, alpha: float = 1):
+    """
+    Для практического использования
+    :param w: Обученный массив весовых коэффициентов
+    :param data: Вектор данных
+    :param alpha: Параметр насыщения
+    :return: нормированный выходной вектор
+    """
+    y_calc = []
+    neuron = []
+    for i in range(len(w)):
+        t = data if i == 0 else y_calc[i - 1]
+        neuron.append(neuron_state(t, w[i]))
+        y_calc.append(sigmoid_logistic(neuron[i], alpha))
+    return y_calc[-1]
+
+
 if __name__ == "__main__":
-    # print(numpy.array([2, 4])*numpy.array([2,3]))
     array = data_worker.read("data\\met_denorm_multi.csv")
     array, mm = data_worker.normalization(array)
-    ww, hh = calculation_start(array, y=2, epoch=100, v=0.5, alpha=2)
+    ww, hh = education_start(array, y=2, epoch=100, v=0.5, alpha=2)
 
     print(hh[-1]["Global error"])
-
-    neuron_1 = neuron_state(numpy.array([0.378, 0.431, 0.616, 0.612, 0.557, 0.512]), ww[0])
-    y_calc_1 = sigmoid_logistic(neuron_1, 2)
-
-    neuron_2 = neuron_state(y_calc_1, ww[1])
-    y_calc_2 = sigmoid_logistic(neuron_2, 2)
-
-    print(y_calc_2)
     # #data_worker.print_history(hh)
+
+    yc = applying(ww, numpy.array([0.378, 0.431, 0.616, 0.612, 0.557, 0.512]), 2)
+    print(yc)
+

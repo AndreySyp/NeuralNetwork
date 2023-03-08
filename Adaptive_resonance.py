@@ -2,7 +2,7 @@ import data_worker
 import numpy
 
 
-def calculation_start_ART2(data: numpy.ndarray, v: float = 0.9, R: float = 0.8, w=None):
+def education_start_ART2(data: numpy.ndarray, v: float = 0.9, R: float = 0.8, w=None):
     """
     Начинает расчет сети Кохонена
     :param data: Массив данных
@@ -11,7 +11,6 @@ def calculation_start_ART2(data: numpy.ndarray, v: float = 0.9, R: float = 0.8, 
     :param w: Весовые коэффициенты
     :return: Массив весовых коэффициентов и историю
     """
-
     history = []  # Хранение данных для вывода
     amount = []
 
@@ -43,6 +42,6 @@ def calculation_start_ART2(data: numpy.ndarray, v: float = 0.9, R: float = 0.8, 
 
 if __name__ == "__main__":
     array = data_worker.read("data\\met_norm_koh.csv")
-    ww, h = calculation_start_ART2(array, v=0.5, R=0.8)
+    ww, h = education_start_ART2(array, v=0.5, R=0.8)
     data_worker.print_history(h)
 

@@ -22,10 +22,10 @@ def education_start(data: numpy.ndarray, r: float = 1, c=None, y: int = 1):
     alpha = 1 / (2 * r ** 2)
     history = []
     h = []
-    for ind_1, num_1 in enumerate(x):
+    for ind_1, xx in enumerate(x):
         h.append([])
-        for ind_2, num_2 in enumerate(c):
-            h[ind_1].append(numpy.exp(-alpha * (num_1 - num_2) ** 2))
+        for ind_2, cc in enumerate(c):
+            h[ind_1].append(numpy.exp(-alpha * (xx - cc) ** 2))
 
     h = numpy.array(h)
     h_t = numpy.transpose(h)
@@ -48,11 +48,11 @@ def applying(w: numpy.ndarray, data, r: float = 1):
 
 
 if __name__ == "__main__":
-    array = data_worker.read("data\\my_data_radial.csv")
+    array = data_worker.read("../data/my_data_radial.csv")
     rr = 0.22
 
-    cc = [array[i][0] for i in range(0, len(array), 2)]
-    ww, hh = education_start(array, y=1, r=rr, c=cc)
+    center = [array[i][0] for i in range(0, len(array), 2)]
+    ww, hh = education_start(array, y=1, r=rr, c=center)
     data_worker.print_history(hh)
 
     yc = applying(ww, 0.35, rr)

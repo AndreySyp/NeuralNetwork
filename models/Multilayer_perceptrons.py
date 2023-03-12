@@ -47,14 +47,14 @@ def education_start(data: numpy.ndarray, epoch: int = 10, v: float = 0.9, y: int
         y_history = []
         w_history = []
 
-        for ind, num in enumerate(x):
+        for ind, xx in enumerate(x):
             neuron = []
             y_calc = []
             diff_y_calc = []
             d = []
 
             for i in range(layers):
-                t = num if i == 0 else y_calc[i - 1]
+                t = xx if i == 0 else y_calc[i - 1]
                 neuron.append(neuron_state(t, w[i]))
                 y_calc.append(sigmoid_logistic(neuron[i], alpha))
 
@@ -68,7 +68,7 @@ def education_start(data: numpy.ndarray, epoch: int = 10, v: float = 0.9, y: int
                 d.insert(0, t * diff_y_calc[i])
 
             for i in range(layers):
-                t = num if i == 0 else diff_y_calc[i - 1]
+                t = xx if i == 0 else diff_y_calc[i - 1]
                 w_recalculation(t, w[i], d[i], v)
 
             # Информация для вывода в консоль
@@ -90,30 +90,30 @@ def education_start(data: numpy.ndarray, epoch: int = 10, v: float = 0.9, y: int
     return [w, history]
 
 
-def applying(w: numpy.ndarray, data: numpy.ndarray, alpha: float = 1):
+def applying(w: numpy.ndarray, x: numpy.ndarray, alpha: float = 1):
     """
     Для практического использования
     :param w: Обученный массив весовых коэффициентов
-    :param data: Вектор данных
+    :param x: Вектор данных
     :param alpha: Параметр насыщения
-    :return: нормированный выходной вектор
+    :return: Нормированный выходной вектор
     """
     y_calc = []
     neuron = []
     for i in range(len(w)):
-        t = data if i == 0 else y_calc[i - 1]
+        t = x if i == 0 else y_calc[i - 1]
         neuron.append(neuron_state(t, w[i]))
         y_calc.append(sigmoid_logistic(neuron[i], alpha))
     return y_calc[-1]
 
 
 if __name__ == "__main__":
-    array = data_worker.read("data\\met_denorm_multi.csv")
+    array = data_worker.read("../data/met_denorm_multi.csv")
     array, mm = data_worker.normalization(array)
     ww, hh = education_start(array, y=2, epoch=100, v=0.5, alpha=2)
 
     print(hh[-1]["Global error"])
-    # #data_worker.print_history(hh)
+    data_worker.print_history(hh)
 
     yc = applying(ww, numpy.array([0.378, 0.431, 0.616, 0.612, 0.557, 0.512]), 2)
     print(yc)

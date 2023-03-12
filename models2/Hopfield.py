@@ -1,9 +1,6 @@
+from activfun import single_jump
 import data_worker
 import numpy
-
-
-def act(x, t):
-    return numpy.array([-1 if i <= t else 1 for i in x])
 
 
 def education_start(data: numpy.ndarray):
@@ -19,12 +16,18 @@ def education_start(data: numpy.ndarray):
     return w
 
 
-def applying(w: numpy.ndarray, data: numpy.ndarray):
+def applying(w: numpy.ndarray, x: numpy.ndarray):
+    """
+    Для практического использования
+    :param w: Обученный массив весовых коэффициентов
+    :param x: Вектор данных
+    :return: Выходной y и история
+    """
     history = []  # Хранение данных для вывода
-    y = [data]
+    y = [x]
     while True:
         s = numpy.dot(w, y[-1])
-        yc = act(s, 0)
+        yc = single_jump(s, 0)
 
         history.append({"y": numpy.array(y), "S": s, "Condition_1": sum((yc - y[-1]) ** 2)})
 
@@ -43,8 +46,8 @@ def applying(w: numpy.ndarray, data: numpy.ndarray):
 
 
 if __name__ == "__main__":
-    array = data_worker.read("data\\met_norm_hop.csv")
-    test = data_worker.read("data\\test_met_norm_hop.csv")
+    array = data_worker.read("../data/met_norm_hop.csv")
+    test = data_worker.read("../data/test_met_norm_hop.csv")
 
     ww = education_start(array)
 

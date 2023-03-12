@@ -1,16 +1,12 @@
+from activfun import linear_threshold
 import data_worker
 import numpy
-
-
-def act(x, t):
-    return numpy.array([0 if i <= 0 else i if i <= t else t for i in x])
 
 
 def education_start(x: numpy.ndarray):
     """
     Начинает расчет сети Хопфилда
     :param x: Входные образов
-    :param y: Выходные образов
     :return: Массив весовых коэффициентов и историю
     """
     w = x / 2
@@ -21,17 +17,24 @@ def education_start(x: numpy.ndarray):
 
 
 def applying(w: list, x: numpy.ndarray, e_max: float = 0.1):
+    """
+    Для практического использования
+    :param w: Обученный массив весовых коэффициентов
+    :param x: Вектор данных
+    :param e_max: Максимально допустимое значение нормы разности
+    :return: Выходной y и история
+    """
     history = []  # Хранение данных для вывода
     t = len(w[0][0]) / 2
 
     s = numpy.dot(w[0], x) + t
-    yc = act(s, t)
+    yc = linear_threshold(s, t)
     history.append({"s": numpy.array(s), "y": yc, "Condition_1": "-"})
     y = yc
 
     while True:
         s = numpy.dot(w[1], y)
-        yc = act(s, t)
+        yc = linear_threshold(s, t)
         history.append({"s": numpy.array(s), "y": yc, "Condition_1": sum((yc - y) ** 2)})
         if sum((yc - y) ** 2) <= e_max:
             break
@@ -41,8 +44,8 @@ def applying(w: list, x: numpy.ndarray, e_max: float = 0.1):
 
 
 if __name__ == "__main__":
-    array = data_worker.read("data\\met_norm_ham.csv")
-    test = data_worker.read("data\\test_met_norm_ham.csv")
+    array = data_worker.read("../data/met_norm_ham.csv")
+    test = data_worker.read("../data/test_met_norm_ham.csv")
 
     ww = education_start(array)
 

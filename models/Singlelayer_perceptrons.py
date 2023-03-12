@@ -55,20 +55,20 @@ def education_start(data: numpy.ndarray, epoch: int = 10, v: float = 0.9, y: int
     return [w, history]
 
 
-def applying(w: numpy.ndarray, data: numpy.ndarray, alpha: float = 1):
+def applying(w: numpy.ndarray, x: numpy.ndarray, alpha: float = 1):
     """
     Для практического использования
     :param w: Обученный массив весовых коэффициентов
-    :param data: Вектор данных
+    :param x: Вектор данных
     :param alpha: Параметр насыщения
-    :return: нормированный выходной вектор
+    :return: Нормированный выходной вектор
     """
-    n = neuron_state(data, w)
+    n = neuron_state(x, w)
     return sigmoid_logistic(n, alpha)
 
 
 if __name__ == "__main__":
-    array = data_worker.read("data\\met_denorm_single.csv")
+    array = data_worker.read("../data/met_denorm_single.csv")
     array, mm = data_worker.normalization(array)
 
     ww, h = education_start(array, y=2, epoch=100)

@@ -2,7 +2,7 @@ import data_worker
 import numpy
 
 
-def calculation_start(data: numpy.ndarray, epoch: int = 10, v: float = 0.9, clusters: int = 2, dv: float = 0., w=None):
+def education_start(data: numpy.ndarray, epoch: int = 10, v: float = 0.9, clusters: int = 2, dv: float = 0., w=None):
     """
     Начинает расчет сети Кохонена
     :param data: Массив данных
@@ -13,7 +13,6 @@ def calculation_start(data: numpy.ndarray, epoch: int = 10, v: float = 0.9, clus
     :param w: Весовые коэффициенты
     :return: Массив весовых коэффициентов и историю
     """
-
     # Массив весов
     if w is None:
         w = numpy.random.uniform(low=0., high=1, size=(clusters, len(data[0])))
@@ -24,14 +23,14 @@ def calculation_start(data: numpy.ndarray, epoch: int = 10, v: float = 0.9, clus
         # Обнуление
         w_history = []
 
-        for ind_1, num_1 in enumerate(data):
+        for ind_1, x in enumerate(data):
             # Считаем расстояние
             r = numpy.zeros(len(w))
             for ind_2, num_2 in enumerate(w):
-                r[ind_2] = sum((num_2 - num_1) ** 2)
+                r[ind_2] = sum((num_2 - x) ** 2)
 
             # Выбираем победителя и изменяем у него веса
-            w[numpy.argmin(r)] += v * (num_1 - w[numpy.argmin(r)])
+            w[numpy.argmin(r)] += v * (x - w[numpy.argmin(r)])
             w_history.append(w)
 
         # Перемешиваем значения и меняем скорость обучения
@@ -44,18 +43,21 @@ def calculation_start(data: numpy.ndarray, epoch: int = 10, v: float = 0.9, clus
 
 
 if __name__ == "__main__":
-    array = data_worker.read("data\\met_norm_koh.csv")
+    array = data_worker.read("../data/met_norm_koh.csv")
     ww = numpy.array([[0.20, 0.20, 0.30, 0.40, 0.40, 0.20, 0.50],
-                  [0.20, 0.80, 0.70, 0.80, 0.70, 0.70, 0.80],
-                  [0.80, 0.20, 0.50, 0.50, 0.40, 0.40, 0.40],
-                  [0.80, 0.80, 0.60, 0.70, 0.70, 0.60, 0.70]])
-    ww, h = calculation_start(array, epoch=6, v=0.3, clusters=4, w=ww, dv=0.05)
+                      [0.20, 0.80, 0.70, 0.80, 0.70, 0.70, 0.80],
+                      [0.80, 0.20, 0.50, 0.50, 0.40, 0.40, 0.40],
+                      [0.80, 0.80, 0.60, 0.70, 0.70, 0.60, 0.70]])
+    copy = array.copy()
+    ww, h = education_start(array, epoch=6, v=0.3, clusters=4, w=ww, dv=0.05)
+
     data_worker.print_history(h)
 
     amount = [0, 0, 0, 0]
-    for i_1, n_1 in enumerate(array):
+    for i_1, n_1 in enumerate(copy):
         rr = numpy.zeros(len(ww))
         for i_2, n_2 in enumerate(ww):
             rr[i_2] = sum((n_2 - n_1) ** 2)
         amount[numpy.argmin(rr)] += 1
+        print(f"Пример {i_1} в кластер {numpy.argmin(rr)}")
     print(amount)

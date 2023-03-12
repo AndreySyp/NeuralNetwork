@@ -1,9 +1,6 @@
+from activfun import single_jump
 import data_worker
 import numpy
-
-
-def act(x, t):
-    return numpy.array([-1 if i <= t else 1 for i in x])
 
 
 def education_start(x: numpy.ndarray, y: numpy.ndarray):
@@ -18,14 +15,20 @@ def education_start(x: numpy.ndarray, y: numpy.ndarray):
 
 
 def applying(w: numpy.ndarray, x: numpy.ndarray):
+    """
+    Для практического использования
+    :param w: Обученный массив весовых коэффициентов
+    :param x: Вектор данных
+    :return: Выходной y и история
+    """
     history = []  # Хранение данных для вывода
     ss = numpy.zeros(len(w[0]))
     while True:
         s_1 = numpy.dot(w.T, x)
-        yc_1 = act(s_1, 0)
+        yc_1 = single_jump(s_1, 0)
 
         s_2 = numpy.dot(w, yc_1)
-        x = act(s_2, 0)
+        x = single_jump(s_2, 0)
 
         history.append({"y_1": numpy.array(yc_1), "S_1": s_1,
                         "y_2": numpy.array(x), "S_2": s_2, "Condition_1": sum((yc_1 - ss) ** 2)})
@@ -38,10 +41,10 @@ def applying(w: numpy.ndarray, x: numpy.ndarray):
 
 
 if __name__ == "__main__":
-    array_in = data_worker.read("data\\met_norm_kos_input.csv")
-    array_out = data_worker.read("data\\met_norm_kos_output.csv")
+    array_in = data_worker.read("../data/met_norm_kos_input.csv")
+    array_out = data_worker.read("../data/met_norm_kos_output.csv")
 
-    test = data_worker.read("data\\test_met_norm_kos.csv")
+    test = data_worker.read("../data/test_met_norm_kos.csv")
 
     ww = education_start(array_in, array_out)
     yy, h = applying(ww, test)

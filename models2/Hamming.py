@@ -1,4 +1,4 @@
-from activfun import linear_threshold
+from activation_functions import linear_threshold
 import data_worker
 import numpy
 

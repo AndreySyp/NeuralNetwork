@@ -1,4 +1,4 @@
-from activfun import sigmoid_logistic, diff_sigmoid_logistic
+from activation_functions import sigmoid_logistic, diff_sigmoid_logistic
 from generic_methods import neuron_state, w_recalculation
 import data_worker
 import numpy

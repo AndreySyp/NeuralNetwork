@@ -1,4 +1,4 @@
-from activfun import single_jump
+from activation_functions import single_jump
 import data_worker
 import numpy
 
